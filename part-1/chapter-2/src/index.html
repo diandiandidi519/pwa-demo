@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="theme-color" content="#4374A5">
+  <title>PWA Manifest Demo</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./index.css" />
+</head>
+<body>
+  <div>Hello PWA Manifest Demo<div>
+  <button id="unregisterBtn">卸载serviceworker</button>
+  <script src="./index.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      if ('serviceWorker' in navigator) {
+        console.log('serviceWorker', navigator.serviceWorker)
+        navigator.serviceWorker.register('./sw.js', {
+          scope: './'
+        }).then(function(registration) {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', function(event) {
+            console.log('statechange', event)
+            console.log(newWorker.state);
+          });
+          registration.addEventListener('updatefound', function(event) {
+            console.log('updatefound', event)
+            console.log(newWorker.state)
+
+          });
+        }).catch(function(err) {
+          
+        });
+        //在activated之前调用
+        navigator.serviceWorker.addEventListener('controllerchange', function(event) {
+          console.log('controllerchange', event)
+        });
+
+      }
+      const unregisterBtn = document.getElementById('unregisterBtn');
+      unregisterBtn.addEventListener('click', function() {
+        if('serviceWorker' in navigator) {
+          // 注销serviceWorker
+          if(typeof navigator.serviceWorker.getRegistration === 'function') {
+            navigator.serviceWorker.getRegistration().then((registration) => {
+              console.log('registration', registration)
+              // registration.unregister()
+            })
+          } 
+          if(typeof navigator.serviceWorker.getRegistrations === 'function') {
+            navigator.serviceWorker.getRegistrations().then((registrations) => {
+              console.log('registrations', registrations)
+              registrations.forEach(registration => {
+                registration.unregister()
+              })
+            })
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
